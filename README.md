@@ -1,1 +1,1 @@
-# Seguridad-en-Computaci-n
+# Seguridad-en-Computación
