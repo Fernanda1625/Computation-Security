@@ -147,54 +147,53 @@ void preprocesar(string filename) {
 }
 
 ```
-#### HERALDOSNEGROS_pre.txt
-```txt
-IAZGOLPESENLAVIDATANFVERTESZONOSEGOLPESCOMODELODIODEDIOSCOMOSIANTEELLOSLARESACADETODOLOSVFRIDOSEEMPOZARAENELALMAZONOSESONPOCOSPEROSONABRENZANIASOSCVRASENELROSTROMASFIEROZENELLOMOMASFVERTESERANTALVEZLOSPOTROSDEBARBAROSATILASOLOSIERALDOSNEGROSQVENOSMANDALAMVERTESONLASCAIDASIONDASDELOSCRISTOSDELALMADEALGVNAFEADORABLEQVEELDESTINOBLASFEMAESOSGOLPESSANGRIENTOSSONLASCREPITACIONESDEALGVNPANQVEENLAPVERTADELIORNOSENOSQVEMAZELIOMBREPOBREPOBREVVELVELOSOIOSCOMOCVANDOPORSOBREELIOMBRONOSLLAMAVNAPALMADAVVELVELOSOIOSLOCOSZTODOLOVIVIDOSEEMPOZACOMOCIARCODECVLPAENLAMIRADAIAZGOLPESENLAVIDATANFVERTESZONOSE
-```
+> Resultado en: HERALDOSNEGROS_pre.txt
+
 ### 5. Abra el archivo generado e implementar una función que calcule una tabla de frecuencias para cada letra de la 'A' a la 'Z'. La función deberá definirse como frecuencias(archivo) deberá devolver un diccionario cuyos índices son las letras analizadas y cuyos valores son las frecuencias de las mismas en el texto (número de veces que aparecen). Reconozca en el resultado obtenido los cinco caracteres de mayor frecuencia
 
 ```c++ 
-void frecuencias(string filename) {
-	map<char, int> tablaFrecuencias;
-	ifstream archivo;
-	archivo.open(filename, ios::in);
-
-	if (archivo.fail()) {
-		cout << "No se pudo abrir el archivo." << endl;
-		return;
-	}
-	
-	//Llenando la tabla
+void frecuencia(string filename){
+	ofstream archivoFrecuencias("HERALDOSNEGROS_pre_FRECUENCIAS.txt");
+	map<char, int>	diccionario;
+	ifstream archivo(filename, std::ios::in);
 	string linea;
-	while (!archivo.eof()) {
-		getline(archivo, linea);
-		for (auto i = linea.begin(); i < linea.end(); ++i) {
-			if (tablaFrecuencias.find(*i) != tablaFrecuencias.end()) {
-				tablaFrecuencias.at(*i)++;
-			} else {
-				tablaFrecuencias.insert_or_assign(*i, 1);
-			}
-		}
+	if(archivo.is_open()){
+		archivo >> linea;		
+		archivo.close();
 	}
-
-	archivo.close();
-	
-	//Ordenando
-	vector<pair<char, int>> temporal;
-	copy(tablaFrecuencias.begin(), tablaFrecuencias.end(),back_inserter<std::vector<pair<char, int >>>(temporal));
-	
-	sort(temporal.begin(), temporal.end(),[](const pair<char, int> &l, const pair<char, int> &r) {
-		if (l.second != r.second) 
-			return l.second > r.second;
-		return l.first > r.first;
-	});
-
-	cout << "\t\t\tTabla de Frecuencias:\t\t\t" << endl;
-	for (int i = 0; i < temporal.size(); ++i)
-		cout << temporal[i].first << " " << temporal[i].second << endl;
+	for(auto letter: linea){
+		auto it = diccionario.find(letter);
+		if(it == diccionario.end())
+			diccionario[letter] = 1;
+		else
+			diccionario[letter] += 1;
+	}
+	if(archivoFrecuencias.is_open())
+	  archivoFrecuencias<<"FRECUENCIAS DEL DICCIONARIO\n";
+	for(auto it = diccionario.begin(); it != diccionario.end(); ++it){
+		if(archivoFrecuencias.is_open())
+		  archivoFrecuencias<< it -> first << " -> " << it -> second << std::endl;
+	}
+	vector<std::pair<char,int>> pairs;
+	for(auto it = diccionario.begin(); it != diccionario.end(); ++it){
+		pairs.push_back(*it);
+	}
+	sort(pairs.begin(), pairs.end(), 
+		[=](std::pair<char,int>& p1, std::pair<char,int>&p2){
+			return p1.second > p2.second;	
+		}
+	);
+	if(archivoFrecuencias.is_open())
+		archivoFrecuencias <<"CINCO CARACTERES DE MAYOR FRECUENCIA\n";
+	for(auto i = 0; i < 5; ++i){
+		if(archivoFrecuencias.is_open())
+			archivoFrecuencias << pairs[i].first << " -> " << pairs[i].second << std::endl;
+	}
+	archivoFrecuencias.close();
 }
-
 ```
+
+> Resultado en:  HERALDOSNEGROS_pre_FRECUENCIAS.txt
 
 ### 6. Aplicar el método Kasiski, que recorre el texto preprocesado y halla los trigramas en el mismo (sucesión de tres letras seguidas que se repiten) y las distancias (número de caracteres entre ellos) entre los trigramas
 
@@ -227,20 +226,54 @@ void kasiski(string filename) {
 	archivo.close();
 }
 ```
-
+> Resultado en:  HERALDOSNEGROS_pre_KASISKI.txt
 ### 7. Volver a preprocesar el archivo cambiando cada carácter según UNICODE-8
 
 ```c++ 
+void convertirUTF8(string filename) {
+	ifstream archivo;
+  ofstream archivoUTF8("HERALDOSNEGROS_pre_UTF8.txt");
+	archivo.open(filename, ios::in);
+  string linea;
+	if (archivo.fail()) {
+		cout << "No se pudo abrir el archivo" << endl;
+		return;
+	}
+	while (!archivo.eof()) {
+		getline(archivo, linea);
+		archivo >> linea;
+    for (auto letra : linea){
+      archivoUTF8 << std::hex << (int)letra;
+    }
+    archivoUTF8.close();
+	}
+}
 ```
-
-### 8. Volver a preprocesar el archivo cambiando cada carácter según UNICODE-8230
-
-```c++ 
-```
+> Resultado en:  HERALDOSNEGROS_pre_UTF8.txt
 
 ### 9. Volver a preprocesar el archivo insertando la cadena AQUÍ cada 20 caracteres, el texto resultante deberá contener un número de caracteres que sea múltiplo de 4, si es necesario rellenar al final con caracteres X según se necesite
 
 ```c++ 
+void insertarAQUI(string filename){
+	ofstream archivoAQUI("HERALDOSNEGROS_pre_AQUI.txt");
+	ifstream archivo(filename, std::ios::in);
+	string linea;
+	if(archivo.is_open()){
+		archivo >> linea;		
+		archivo.close();
+	}
+	string cadena = "";
+	for(int i =0 ; i < linea.length(); i++){
+		if(!((i+1)%20)){
+			cadena += "AQUI";
+		}
+		cadena += linea[i];
+	}
+	while(cadena.length() % 4){
+		cadena += "X";
+	}
+	archivoAQUI << cadena ;
+	archivoAQUI.close();
+}
 ```
-
-
+> Resultado en: HERALDOSNEGROS_pre_AQUI.txt
