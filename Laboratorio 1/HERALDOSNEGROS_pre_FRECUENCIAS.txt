@@ -1,0 +1,26 @@
+FRECUENCIAS DEL DICCIONARIO
+A -> 61
+B -> 10
+C -> 16
+D -> 27
+E -> 71
+F -> 7
+G -> 8
+I -> 27
+L -> 47
+M -> 20
+N -> 36
+O -> 83
+P -> 17
+Q -> 4
+R -> 33
+S -> 59
+T -> 18
+V -> 26
+Z -> 12
+CINCO CARACTERES DE MAYOR FRECUENCIA
+O -> 83
+E -> 71
+A -> 61
+S -> 59
+L -> 47
