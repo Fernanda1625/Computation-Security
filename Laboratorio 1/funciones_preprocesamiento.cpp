@@ -68,7 +68,6 @@ void eliminarAcentos(string &text){
 	}
 }
 
-
 ////////////////////////////////////////////////////////////////////////
 // Actividad 3: convertir todas las letras a mayúsculas
 ////////////////////////////////////////////////////////////////////////
@@ -133,75 +132,76 @@ void preprocesar(string filename) {
 ////////////////////////////////////////////////////////////////////////
 // Actividad 5: Frecuencias de las letras
 ////////////////////////////////////////////////////////////////////////
-void frecuencias(string filename) {
-	map<char, int> tablaFrecuencias;
-	ifstream archivo;
-	archivo.open(filename, ios::in);
-
-	if (archivo.fail()) {
-		cout << "No se pudo abrir el archivo." << endl;
-		return;
-	}
-
-	//Llenando la tabla
+void frecuencia(string filename){
+	ofstream archivoFrecuencias("HERALDOSNEGROS_pre_FRECUENCIAS.txt");
+	map<char, int>	diccionario;
+	ifstream archivo(filename, std::ios::in);
 	string linea;
-	while (!archivo.eof()) {
-		getline(archivo, linea);
-		for (auto i = linea.begin(); i < linea.end(); ++i) {
-			if (tablaFrecuencias.find(*i) != tablaFrecuencias.end()) {
-				tablaFrecuencias.at(*i)++;
-			} else {
-				tablaFrecuencias.insert_or_assign(*i, 1);
-			}
-		}
+	if(archivo.is_open()){
+		archivo >> linea;
+		archivo.close();
 	}
-
-	archivo.close();
-
-	//Ordenando
-	vector<pair<char, int>> temporal;
-	copy(tablaFrecuencias.begin(), tablaFrecuencias.end(),back_inserter<std::vector<pair<char, int >>>(temporal));
-
-	sort(temporal.begin(), temporal.end(),[](const pair<char, int> &l, const pair<char, int> &r) {
-		if (l.second != r.second)
-			return l.second > r.second;
-		return l.first > r.first;
-	});
-
-	cout << "\t\t\tTabla de Frecuencias:\t\t\t" << endl;
-	for (int i = 0; i < temporal.size(); ++i)
-		cout << temporal[i].first << " " << temporal[i].second << endl;
+	for(auto letter: linea){
+		auto it = diccionario.find(letter);
+		if(it == diccionario.end())
+			diccionario[letter] = 1;
+		else
+			diccionario[letter] += 1;
+	}
+	if(archivoFrecuencias.is_open())
+	  archivoFrecuencias<<"FRECUENCIAS DEL DICCIONARIO\n";
+	for(auto it = diccionario.begin(); it != diccionario.end(); ++it){
+		if(archivoFrecuencias.is_open())
+		  archivoFrecuencias<< it -> first << " -> " << it -> second << std::endl;
+	}
+	vector<std::pair<char,int>> pairs;
+	for(auto it = diccionario.begin(); it != diccionario.end(); ++it){
+		pairs.push_back(*it);
+	}
+	sort(pairs.begin(), pairs.end(),
+		[=](std::pair<char,int>& p1, std::pair<char,int>&p2){
+			return p1.second > p2.second;
+		}
+	);
+	if(archivoFrecuencias.is_open())
+		archivoFrecuencias <<"CINCO CARACTERES DE MAYOR FRECUENCIA\n";
+	for(auto i = 0; i < 5; ++i){
+		if(archivoFrecuencias.is_open())
+			archivoFrecuencias << pairs[i].first << " -> " << pairs[i].second << std::endl;
+	}
+	archivoFrecuencias.close();
 }
 
 ////////////////////////////////////////////////////////////////////////
 // Actividad 6: Método Kasiski
 ////////////////////////////////////////////////////////////////////////
-void kasiski(string filename) {
-	ifstream archivo;
-	archivo.open(filename, ios::in);
-
-	if (archivo.fail()) {
-		cout << "No se pudo abrir el archivo." << endl;
-		return;
-	}
-
+void kasiski(string filename){
+	ofstream archivoKasiski("HERALDOSNEGROS_pre_KASISKI.txt");
+	ifstream archivo(filename, std::ios::in);
 	string linea;
-	while (!archivo.eof()) {
-		getline(archivo, linea);
-		auto ultimo = linea.begin();
-		int distancia;
-
-		for (auto i = linea.begin(), j = linea.begin() + 1, k = linea.begin() + 2; k < linea.end(); ++i, ++j, ++k) {
-			if (*i == *j && *i == *k) {
-				if (ultimo != i) {
-					cout << i - ultimo << endl;
-					ultimo = i;
+	if(archivo.is_open()){
+		archivo >> linea;
+		archivo.close();
+	}
+	for( int i = 0; i < linea.length()-6; ++i){
+		string primerTrigrama = "";
+		primerTrigrama += linea[i];
+		primerTrigrama += linea[i+1];
+		primerTrigrama += linea[i+2];
+		for(int j=i+3; j< linea.length()-3; ++j){
+			string segundoTrigrama = "";
+			segundoTrigrama += linea[j];
+			segundoTrigrama += linea[j+1];
+			segundoTrigrama += linea[j+2];
+			if(primerTrigrama == segundoTrigrama){
+				if(archivoKasiski.is_open()){
+					archivoKasiski << primerTrigrama << "("<< i+1 << "," << i+3 <<")" << "->" <<
+					"(" << j+1 << "," << j+3 << ")" << "\tdistancia: " << j-(i+3) << std::endl;
 				}
 			}
 		}
 	}
-
-	archivo.close();
+	archivoKasiski.close();
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -209,57 +209,47 @@ void kasiski(string filename) {
 ////////////////////////////////////////////////////////////////////////
 void convertirUTF8(string filename) {
 	ifstream archivo;
+  ofstream archivoUTF8("HERALDOSNEGROS_pre_UTF8.txt");
 	archivo.open(filename, ios::in);
-
+  string linea;
 	if (archivo.fail()) {
 		cout << "No se pudo abrir el archivo" << endl;
 		return;
 	}
-
-	string linea;
 	while (!archivo.eof()) {
 		getline(archivo, linea);
-		cout << linea << endl;
-	}
-}
-
-
-////////////////////////////////////////////////////////////////////////
-// Actividad 8: Unicode-8230
-////////////////////////////////////////////////////////////////////////
-void convertirUTF8230(string filename) {
-	ifstream archivo;
-	archivo.open(filename, ios::in);
-
-	if (archivo.fail()) {
-		cout << "No se pudo abrir el archivo" << endl;
-		return;
-	}
-
-	string linea;
-	while (!archivo.eof()) {
-		getline(archivo, linea);
-		cout << linea << endl;
+		archivo >> linea;
+    for (auto letra : linea){
+      archivoUTF8 << std::hex << (int)letra;
+    }
+    archivoUTF8.close();
 	}
 }
 
 ////////////////////////////////////////////////////////////////////////
 // Actividad 9: Insertando AQUI cada 20 caracteres
 ////////////////////////////////////////////////////////////////////////
-void insertarAqui(string filename){
-	ifstream archivo;
-    archivo.open(filename, ios::in);
 
-	if (archivo.fail()) {
-		cout << "No se pudo abrir el archivo" << endl;
-		return;
-	}
-
+void insertarAQUI(string filename){
+	ofstream archivoAQUI("HERALDOSNEGROS_pre_AQUI.txt");
+	ifstream archivo(filename, std::ios::in);
 	string linea;
-	while (!archivo.eof()) {
-		getline(archivo, linea);
-		cout << linea << endl;
+	if(archivo.is_open()){
+		archivo >> linea;
+		archivo.close();
 	}
+	string cadena = "";
+	for(int i =0 ; i < linea.length(); i++){
+		if(!((i+1)%20)){
+			cadena += "AQUI";
+		}
+		cadena += linea[i];
+	}
+	while(cadena.length() % 4){
+		cadena += "X";
+	}
+	archivoAQUI << cadena ;
+	archivoAQUI.close();
 }
 
 //////////
@@ -268,10 +258,10 @@ void insertarAqui(string filename){
 int main() {
 	string archivo = "HERALDOSNEGROS.txt";
 	preprocesar(archivo);
-	frecuencias("HERALDOSNEGROS_pre.txt");
+	frecuencia("HERALDOSNEGROS_pre.txt");
 	kasiski("HERALDOSNEGROS_pre.txt");
-	//convertirUTF8("HERALDOSNEGROS_pre.txt");
-
+	convertirUTF8("HERALDOSNEGROS_pre.txt");
+	insertarAQUI("HERALDOSNEGROS_pre.txt");
 
 	return 0;
 }
